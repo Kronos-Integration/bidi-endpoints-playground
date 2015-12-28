@@ -7,7 +7,13 @@ let endpoint1 = {
   get name() {
     "ep1"
   },
-  feed: undefined
+
+  set generator(generator) {
+    this._generator = generator;
+  },
+  get generator() {
+    return this._generator;
+  }
 };
 
 
@@ -18,31 +24,52 @@ let endpoint2 = {
   connect(e) {
     this.counterpart = e;
   },
-  set feed(feed) {
-    this.counterpart.feed = feed;
+  set generator(generator) {
+    this.counterpart.generator = generator;
+  },
+  get generator() {
+    return this.counterpart.generator;
   }
 }
 
 endpoint2.connect(endpoint1);
 
 
-endpoint2.feed = function* () {
+endpoint2.generator = function* () {
   let seq = 1;
+  let result;
+
   let request = yield;
 
-  while (true) {
-    request = yield `${request.url} ${seq}`;
+  //console.log(`A got request: ${request.url}`);
 
-    console.log(`got request: ${request.url}`);
+  while (true) {
+    request = yield new Promise((f, r) => {
+      setTimeout(
+        () => {
+          f(`result of ${request.url} ${seq}`);
+        },
+        1000
+      );
+    });
+
+    //console.log(`B got request: ${request.url}`);
     seq += 1;
   }
 };
 
 
-let it = endpoint1.feed();
+let iterator = endpoint1.generator();
 
 app.use(ctx => {
-  ctx.body = it.next(ctx.request).value;
+  let p = iterator.next(ctx.request).value;
+
+  if (p) {
+    return p.then((f, r) => {
+      //console.log(`body: ${f}`);
+      ctx.body = f;
+    });
+  }
 });
 
 app.listen(3000);
