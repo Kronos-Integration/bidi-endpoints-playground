@@ -5,7 +5,7 @@ const app = new Koa();
 
 let endpoint1 = {
   get name() {
-    "ep1"
+    return "ep1";
   },
 
   set generator(generator) {
@@ -19,7 +19,7 @@ let endpoint1 = {
 
 let endpoint2 = {
   get name() {
-    "ep2"
+    return "ep2";
   },
   connect(e) {
     this.counterpart = e;
