@@ -33,6 +33,11 @@ const ConnectorMixin = (superclass) => class extends superclass {
   get connected() {
     return this._connected;
   }
+
+  inject(endpoint) {
+    endpoint.connected = this.connected;
+    this.connected = endpoint;
+  }
 }
 
 class SendEndpoint extends ConnectorMixin(Endpoint) {
