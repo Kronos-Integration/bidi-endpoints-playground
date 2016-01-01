@@ -3,73 +3,65 @@
 const Koa = require('koa');
 const app = new Koa();
 
-let endpoint1 = {
+const endpoint1 = {
   get name() {
     return "ep1";
   },
 
-  set generator(generator) {
-    this._generator = generator;
+  get receive() {
+    return this._receive;
   },
-  get generator() {
-    return this._generator;
+
+  set receive(receive) {
+    this._receive = receive;
   }
 };
 
-
-let endpoint2 = {
+const endpoint2 = {
   get name() {
     return "ep2";
   },
-  connect(e) {
-    this.counterpart = e;
+
+  set connected(e) {
+    this._connected = e;
   },
-  set generator(generator) {
-    this.counterpart.generator = generator;
+
+  get connected() {
+    return this._connected;
   },
-  get generator() {
-    return this.counterpart.generator;
+
+  send(request) {
+    return this.connected.receive(request);
   }
 }
 
-endpoint2.connect(endpoint1);
+endpoint2.connected = endpoint1;
 
 
-endpoint2.generator = function* () {
-  let seq = 1;
-  let result;
+function myStep(endpoint) {
+  let sequence = 0;
 
-  let request = yield;
+  endpoint.receive = request => {
+    sequence += 1;
 
-  //console.log(`A got request: ${request.url}`);
-
-  while (true) {
-    request = yield new Promise((f, r) => {
+    return new Promise((f, r) => {
       setTimeout(
-        () => {
-          f(`result of ${request.url} ${seq}`);
-        },
-        1000
-      );
+        () => f(`result of ${request.url} ${sequence}`),
+        50);
     });
+  };
+}
 
-    //console.log(`B got request: ${request.url}`);
-    seq += 1;
-  }
-};
+myStep(endpoint1);
 
-
-let iterator = endpoint1.generator();
 
 app.use(ctx => {
-  let p = iterator.next(ctx.request).value;
+  let p = endpoint2.send(ctx.request);
 
-  if (p) {
-    return p.then((f, r) => {
-      //console.log(`body: ${f}`);
-      ctx.body = f;
-    });
-  }
+  return p.then((f, r) => {
+    console.log(`body: ${f}`);
+    ctx.body = f;
+  });
 });
 
 app.listen(3000);
