@@ -1,3 +1,4 @@
+/* jslint node: true, esnext: true */
 "use strict";
 
 const Koa = require('koa');
@@ -30,7 +31,7 @@ let endpoint2 = {
   get generator() {
     return this.counterpart.generator;
   }
-}
+};
 
 endpoint2.connect(endpoint1);
 
