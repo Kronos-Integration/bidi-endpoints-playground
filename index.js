@@ -1,76 +1,52 @@
 /* jslint node: true, esnext: true */
 "use strict";
 
-const Koa = require('koa');
-const app = new Koa();
-
-let endpoint1 = {
-  get name() {
-    return "ep1";
-  },
-
-  set generator(generator) {
-    this._generator = generator;
-  },
-  get generator() {
-    return this._generator;
-  }
-};
+const Koa = require('koa'),
+  route = require('koa-route'),
+  app = new Koa(),
+  endpoints = require('./endpoints');
 
 
-let endpoint2 = {
-  get name() {
-    return "ep2";
-  },
-  connect(e) {
-    this.counterpart = e;
-  },
-  set generator(generator) {
-    this.counterpart.generator = generator;
-  },
-  get generator() {
-    return this.counterpart.generator;
-  }
-};
+function myStep(endpoint) {
+  let sequence = 0;
 
-endpoint2.connect(endpoint1);
+  endpoint.receive = request => {
+    sequence += 1;
 
-
-endpoint2.generator = function* () {
-  let seq = 1;
-  let result;
-
-  let request = yield;
-
-  //console.log(`A got request: ${request.url}`);
-
-  while (true) {
-    request = yield new Promise((f, r) => {
+    return new Promise((f, r) => {
       setTimeout(
-        () => {
-          f(`result of ${request.url} ${seq}`);
-        },
-        1000
-      );
+        () => f(`result of ${request.url} ${sequence}`),
+        50);
     });
+  };
+}
 
-    //console.log(`B got request: ${request.url}`);
-    seq += 1;
-  }
-};
+const endpoint1 = new endpoints.ReceiveEndpoint('ep1');
+
+myStep(endpoint1);
+
+const endpoint2 = new endpoints.SendEndpoint('ep2');
+const endpoint3 = new endpoints.SendEndpoint('ep3');
 
 
-let iterator = endpoint1.generator();
+endpoint2.connected = endpoint1;
+endpoint3.connected = endpoint1;
 
-app.use(ctx => {
-  let p = iterator.next(ctx.request).value;
+endpoint3.inject(new endpoints.LoggingInterceptor('ic1'));
 
-  if (p) {
-    return p.then((f, r) => {
-      //console.log(`body: ${f}`);
-      ctx.body = f;
-    });
-  }
-});
+
+app.use(route.get('/a', ctx =>
+  endpoint2.send(ctx.request).then((f, r) => {
+    console.log(`body: ${f}`);
+    ctx.body = f;
+  })
+));
+
+app.use(route.get('/b', ctx =>
+  endpoint3.send(ctx.request).then((f, r) => {
+    console.log(`body: ${f}`);
+    ctx.body = f;
+  })
+));
 
 app.listen(3000);
