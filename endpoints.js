@@ -25,7 +25,7 @@ class ReceiveEndpoint extends Endpoint {
   }
 }
 
-class SendEndpoint extends Endpoint {
+const ConnectorMixin = (superclass) => class extends superclass {
   set connected(e) {
     this._connected = e;
   }
@@ -33,13 +33,15 @@ class SendEndpoint extends Endpoint {
   get connected() {
     return this._connected;
   }
+}
 
+class SendEndpoint extends ConnectorMixin(Endpoint) {
   send(request) {
     return this.connected.receive(request);
   }
 }
 
-class LoggingInterceptor extends SendEndpoint {
+class LoggingInterceptor extends ConnectorMixin(Endpoint) {
   receive(request) {
     const start = new Date();
     const response = this.connected.receive(request);

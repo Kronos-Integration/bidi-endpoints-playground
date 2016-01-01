@@ -32,10 +32,6 @@ const endpoint3 = new endpoints.SendEndpoint('ep3');
 
 endpoint2.connected = endpoint1;
 
-
-
-//endpoint3.connected = endpoint1;
-
 const ic1 = new endpoints.LoggingInterceptor('ic1');
 endpoint3.connected = ic1;
 ic1.connected = endpoint1;
