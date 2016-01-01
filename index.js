@@ -1,41 +1,11 @@
+/* jslint node: true, esnext: true */
+
 "use strict";
 
-const Koa = require('koa');
-const app = new Koa();
-
-const endpoint1 = {
-  get name() {
-    return "ep1";
-  },
-
-  get receive() {
-    return this._receive;
-  },
-
-  set receive(receive) {
-    this._receive = receive;
-  }
-};
-
-const endpoint2 = {
-  get name() {
-    return "ep2";
-  },
-
-  set connected(e) {
-    this._connected = e;
-  },
-
-  get connected() {
-    return this._connected;
-  },
-
-  send(request) {
-    return this.connected.receive(request);
-  }
-}
-
-endpoint2.connected = endpoint1;
+const Koa = require('koa'),
+  route = require('koa-route'),
+  app = new Koa(),
+  endpoints = require('./endpoints');
 
 
 function myStep(endpoint) {
@@ -52,16 +22,37 @@ function myStep(endpoint) {
   };
 }
 
+const endpoint1 = new endpoints.ReceiveEndpoint('ep1');
+
 myStep(endpoint1);
 
+const endpoint2 = new endpoints.SendEndpoint('ep2');
+const endpoint3 = new endpoints.SendEndpoint('ep3');
 
-app.use(ctx => {
-  let p = endpoint2.send(ctx.request);
 
-  return p.then((f, r) => {
+endpoint2.connected = endpoint1;
+
+
+
+//endpoint3.connected = endpoint1;
+
+const ic1 = new endpoints.LoggingInterceptor('ic1');
+endpoint3.connected = ic1;
+ic1.connected = endpoint1;
+
+
+app.use(route.get('/a', ctx =>
+  endpoint2.send(ctx.request).then((f, r) => {
     console.log(`body: ${f}`);
     ctx.body = f;
-  });
-});
+  })
+));
+
+app.use(route.get('/b', ctx =>
+  endpoint3.send(ctx.request).then((f, r) => {
+    console.log(`body: ${f}`);
+    ctx.body = f;
+  })
+));
 
 app.listen(3000);
