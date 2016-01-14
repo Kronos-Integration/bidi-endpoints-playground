@@ -81,12 +81,15 @@ class SendEndpoint extends connectorMixin(Endpoint) {
     this.receiver = this.interceptors[0];
   }
 
-  forward(request) {
-    if (this.interceptors > 0) {
-      return this.interceptors[0].forward(request);
-    } else {
-      return this.connected.receive(request);
+  set connected(e) {
+    if (this.interceptors === 0) {
+      this.receiver = e;
     }
+    this._connected = e;
+  }
+
+  forward(request) {
+    return this.connected.receive(request);
   }
 }
 
