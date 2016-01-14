@@ -38,7 +38,7 @@ const ConnectorMixin = (superclass) => class extends superclass {
     endpoint.connected = this.connected;
     this.connected = endpoint;
   }
-}
+};
 
 class SendEndpoint extends ConnectorMixin(Endpoint) {
   send(request) {
