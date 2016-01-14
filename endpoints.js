@@ -41,8 +41,18 @@ const ConnectorMixin = (superclass) => class extends superclass {
 }
 
 class SendEndpoint extends ConnectorMixin(Endpoint) {
+  constructor() {
+    super();
+
+    this.internal = this;
+  }
+
   forward(request) {
     return this.connected.forward(request);
+  }
+
+  addInterceptor(interceptor) {
+    this.internal.inject(interceptor);
   }
 }
 

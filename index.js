@@ -15,14 +15,14 @@ const step1 = {
 
   initialize() {
     app.use(route.get('/a', ctx =>
-      this.endpoints.send1.forward(ctx.request).then((f, r) => {
+      this.endpoints.send1.internal.forward(ctx.request).then((f, r) => {
         console.log(`a body: ${f}`);
         ctx.body = f;
       })
     ));
 
     app.use(route.get('/b', ctx =>
-      this.endpoints.send2.forward(ctx.request).then((f, r) => {
+      this.endpoints.send2.internal.forward(ctx.request).then((f, r) => {
         console.log(`b body: ${f}`);
         ctx.body = f;
       })
@@ -61,5 +61,5 @@ step1.endpoints.send1.connected = step2.endpoints.receive;
 step1.endpoints.send2.connected = step2.endpoints.receive;
 
 
-step1.endpoints.send1.inject(new endpoints.LoggingInterceptor('ic1'));
-step1.endpoints.send1.inject(new endpoints.LoggingInterceptor('ic2'));
+step1.endpoints.send1.addInterceptor(new endpoints.LoggingInterceptor('ic1'));
+step1.endpoints.send1.addInterceptor(new endpoints.LoggingInterceptor('ic2'));
