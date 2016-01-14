@@ -40,7 +40,7 @@ const step2 = {
   initialize() {
     let sequence = 0;
 
-    this.endpoints.receive.forward = request => {
+    this.endpoints.receive.receive = request => {
       sequence += 1;
 
       return new Promise((f, r) => {
@@ -61,5 +61,5 @@ step1.endpoints.send1.connected = step2.endpoints.receive;
 step1.endpoints.send2.connected = step2.endpoints.receive;
 
 
-step1.endpoints.send1.inject(new endpoints.LoggingInterceptor('ic1'));
-step1.endpoints.send1.inject(new endpoints.LoggingInterceptor('ic2'));
+step1.endpoints.send1.add(new endpoints.LoggingInterceptor('ic1'));
+step1.endpoints.send1.add(new endpoints.LoggingInterceptor('ic2'));

@@ -76,20 +76,28 @@ class SendEndpoint extends connectorMixin(Endpoint) {
     return true;
   }
 
-  add(newInterceptor) {
-    super(newInterceptor);
-    this.receiver = this.interceptors[0];
-  }
-
-  set connected(e) {
-    if (this.interceptors === 0) {
-      this.receiver = e;
-    }
-    this._connected = e;
-  }
+  // add(newInterceptor) {
+  //   super.add(newInterceptor);
+  //   this.receiver = this.interceptors[0].forward;
+  // }
+  //
+  // set connected(e) {
+  //   if (this.interceptors.length === 0) {
+  //     this.receiver = e.receive;
+  //   }
+  //   this._connected = e;
+  // }
 
   forward(request) {
-    return this.connected.receive(request);
+    return this._connected.receive(request);
+  }
+  send(request) {
+    if (this.interceptors.length === 0) {
+      return this._connected.receive(request);
+    } else {
+      this.interceptors[0].forward(request);
+    }
+
   }
 }
 
