@@ -60,11 +60,13 @@ step2.initialize();
 step1.endpoints.send1.connected = step2.endpoints.receive;
 step1.endpoints.send2.connected = step2.endpoints.receive;
 
+
 step1.endpoints.send1.interceptors = [new endpoints.LoggingInterceptor('ics1'),
   new endpoints.LoggingInterceptor('ics2'),
   new endpoints.LoggingInterceptor('ics3'),
   new endpoints.LoggingInterceptor('ics4')
 ];
+
 
 console.log(`Interceptors: ${step1.endpoints.send1.interceptors}`);
 

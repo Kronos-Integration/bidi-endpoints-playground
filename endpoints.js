@@ -35,7 +35,7 @@ class Endpoint {
   }
 
   get hasInterceptors() {
-    return this._firstInterceptor !== undefined;
+    return this._firstInterceptor !== undefined && this._firstInterceptor != this;
   }
 
   get firstInterceptor() {
@@ -46,6 +46,7 @@ class Endpoint {
     let i = this._firstInterceptor;
     if (i === undefined) return undefined;
     do {
+      if (i === this) undefined;
       if (!i.isConnected) return i;
     }
     while (i = i.connected);
@@ -58,6 +59,7 @@ class Endpoint {
     let i = this.firstInterceptor;
     while (i) {
       if (i === this) break;
+      if (i.isIn) break;
       itcs.push(i);
       i = i.connected;
     }
@@ -119,32 +121,33 @@ class SendEndpoint extends connectorMixin(Endpoint) {
   }
 
   set interceptors(newInterceptors) {
+    const lastConnected = this.hasInterceptors ? this.lastInterceptor.connected : this._connected;
+
     super.interceptors = newInterceptors;
-    this.receiver = this.firstInterceptor;
-    this.lastInterceptor.connected = this;
+    if (this.hasInterceptors) {
+      this.lastInterceptor.connected = lastConnected;
+      this._connected = this.firstInterceptor;
+    } else {
+      this._connected = lastConnected;
+    }
   }
 
-  /*
-    get connected() {
-      return this.lastInterceptor.connected;
-    }
-  */
+  // TODO why
+  get connected() {
+    return this._connected;
+  }
 
   set connected(e) {
-    //this.lastInterceptor.connected = e;
-
-    if (!this.hasInterceptors) {
-      this.receiver = e;
+    if (this.hasInterceptors) {
+      this.lastInterceptor.connected = e;
+    } else {
+      console.log(`${this.name}: connected = ${e}`);
+      super.connected = e;
     }
-    this._connected = e;
-  }
-
-  receive(request) {
-    return this._connected.receive(request);
   }
 
   send(request) {
-    return this.receiver.receive(request);
+    return this.connected.receive(request);
   }
 }
 
