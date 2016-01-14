@@ -11,6 +11,20 @@ const connectorMixin = (superclass) => class extends superclass {
     return this._connected;
   }
 
+  get isConnected() {
+    return this._connected ? true : false;
+  }
+
+  injectNext(endpoint) {
+    endpoint.connected = this.connected;
+    this.connected = endpoint;
+  }
+
+  removeNext() {
+    if (this.isConnected) {
+      this.connected = this.connected.connected;
+    }
+  }
 };
 
 class Endpoint {
@@ -18,24 +32,47 @@ class Endpoint {
     Object.defineProperty(this, 'name', {
       value: name
     });
-
-    let interceptors = [];
-    Object.defineProperty(this, 'interceptors', {
-      value: interceptors
-    });
   }
 
-  addInterceptor(newInterceptor) {
-    newInterceptor.connected = this;
+  get hasInterceptors() {
+    return this._firstInterceptor !== undefined;
+  }
 
-    if (this.interceptors > 0) {
-      const lastInterceptor = this.interceptors[this.interceptors.lastIndexOf()];
-      lastInterceptor.connected = newInterceptor;
+  get firstInterceptor() {
+    return this._firstInterceptor;
+  }
+
+  get lastInterceptor() {
+    let i = this._firstInterceptor;
+    if (i === undefined) return undefined;
+    do {
+      if (!i.isConnected) return i;
+    }
+    while (i = i.connected);
+
+    return undefined;
+  }
+
+  get interceptors() {
+    const itcs = [];
+    let i = this.firstInterceptor;
+    while (i) {
+      if (i === this) break;
+      itcs.push(i);
+      i = i.connected;
     }
 
-    this.interceptors.push(newInterceptor);
+    return itcs;
   }
 
+  set interceptors(newInterceptors) {
+    if (newInterceptors === undefined ||  newInterceptors.length === 0) {
+      this._firstInterceptor = undefined;
+    } else {
+      this._firstInterceptor = newInterceptors[0];
+      newInterceptors.reduce((previous, current) => previous.connected = current, newInterceptors[0]);
+    }
+  }
 
   get isIn() {
     return false;
@@ -54,19 +91,19 @@ class ReceiveEndpoint extends Endpoint {
   }
 
   get receive() {
-    if (this.interceptors > 0) {
-      return this.interceptors[0].forward;
+    if (this.hasInterceptors) {
+      return this.firstInterceptor.forward;
     } else {
       return this._receive;
     }
   }
 
-  get isIn() {
-    return true;
-  }
-
   set receive(receive) {
     this._receive = receive;
+  }
+
+  get isIn() {
+    return true;
   }
 }
 
@@ -76,13 +113,27 @@ class SendEndpoint extends connectorMixin(Endpoint) {
     return true;
   }
 
-  addInterceptor(newInterceptor) {
-    super.addInterceptor(newInterceptor);
-    this.receiver = this.interceptors[0];
+  // TODO why is this required ?
+  get interceptors() {
+    return super.interceptors;
   }
 
+  set interceptors(newInterceptors) {
+    super.interceptors = newInterceptors;
+    this.receiver = this.firstInterceptor;
+    this.lastInterceptor.connected = this;
+  }
+
+  /*
+    get connected() {
+      return this.lastInterceptor.connected;
+    }
+  */
+
   set connected(e) {
-    if (this.interceptors.length === 0) {
+    //this.lastInterceptor.connected = e;
+
+    if (!this.hasInterceptors) {
       this.receiver = e;
     }
     this._connected = e;
@@ -96,7 +147,6 @@ class SendEndpoint extends connectorMixin(Endpoint) {
     return this.receiver.receive(request);
   }
 }
-
 
 
 class LoggingInterceptor extends connectorMixin(Endpoint) {
