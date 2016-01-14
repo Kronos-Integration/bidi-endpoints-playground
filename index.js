@@ -7,46 +7,59 @@ const Koa = require('koa'),
   endpoints = require('./endpoints');
 
 
-function myStep(endpoint) {
-  let sequence = 0;
+const step1 = {
+  endpoints: {
+    'send1': new endpoints.SendEndpoint('send1'),
+    'send2': new endpoints.SendEndpoint('send2')
+  },
 
-  endpoint.receive = request => {
-    sequence += 1;
+  initialize() {
+    app.use(route.get('/a', ctx =>
+      this.endpoints.send1.forward(ctx.request).then((f, r) => {
+        console.log(`a body: ${f}`);
+        ctx.body = f;
+      })
+    ));
 
-    return new Promise((f, r) => {
-      setTimeout(
-        () => f(`result of ${request.url} ${sequence}`),
-        50);
-    });
-  };
-}
+    app.use(route.get('/b', ctx =>
+      this.endpoints.send2.forward(ctx.request).then((f, r) => {
+        console.log(`b body: ${f}`);
+        ctx.body = f;
+      })
+    ));
 
-const endpoint1 = new endpoints.ReceiveEndpoint('ep1');
+    app.listen(3000);
+  }
+};
 
-myStep(endpoint1);
+const step2 = {
+  endpoints: {
+    'receive': new endpoints.ReceiveEndpoint('receive')
+  },
 
-const endpoint2 = new endpoints.SendEndpoint('ep2');
-const endpoint3 = new endpoints.SendEndpoint('ep3');
+  initialize() {
+    let sequence = 0;
+
+    this.endpoints.receive.forward = request => {
+      sequence += 1;
+
+      return new Promise((f, r) => {
+        setTimeout(
+          () => f(`result of ${request.url} ${sequence}`),
+          50);
+      });
+    };
+  }
+};
 
 
-endpoint2.connected = endpoint1;
-endpoint3.connected = endpoint1;
-
-endpoint3.inject(new endpoints.LoggingInterceptor('ic1'));
+step1.initialize();
+step2.initialize();
 
 
-app.use(route.get('/a', ctx =>
-  endpoint2.send(ctx.request).then((f, r) => {
-    console.log(`body: ${f}`);
-    ctx.body = f;
-  })
-));
+step1.endpoints.send1.connected = step2.endpoints.receive;
+step1.endpoints.send2.connected = step2.endpoints.receive;
 
-app.use(route.get('/b', ctx =>
-  endpoint3.send(ctx.request).then((f, r) => {
-    console.log(`body: ${f}`);
-    ctx.body = f;
-  })
-));
 
-app.listen(3000);
+step1.endpoints.send1.inject(new endpoints.LoggingInterceptor('ic1'));
+step1.endpoints.send1.inject(new endpoints.LoggingInterceptor('ic2'));

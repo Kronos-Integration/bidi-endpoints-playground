@@ -16,12 +16,12 @@ class Endpoint {
 }
 
 class ReceiveEndpoint extends Endpoint {
-  get receive() {
-    return this._receive;
+  get forward() {
+    return this._forward;
   }
 
-  set receive(receive) {
-    this._receive = receive;
+  set forward(forward) {
+    this._forward = forward;
   }
 }
 
@@ -41,18 +41,18 @@ const ConnectorMixin = (superclass) => class extends superclass {
 };
 
 class SendEndpoint extends ConnectorMixin(Endpoint) {
-  send(request) {
-    return this.connected.receive(request);
+  forward(request) {
+    return this.connected.forward(request);
   }
 }
 
 class LoggingInterceptor extends ConnectorMixin(Endpoint) {
-  receive(request) {
+  forward(request) {
     const start = new Date();
-    const response = this.connected.receive(request);
+    const response = this.connected.forward(request);
     return response.then(f => {
       const now = new Date();
-      console.log(`took ${now - start}ms for ${request.url}`);
+      console.log(`${this.name}: took ${now - start}ms for ${request.url}`);
       return f;
     });
   }
