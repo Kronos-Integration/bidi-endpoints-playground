@@ -25,14 +25,14 @@ class Endpoint {
     });
   }
 
-  add(newInterceptor) {
+  addInterceptor(newInterceptor) {
+    newInterceptor.connected = this;
+
     if (this.interceptors > 0) {
       const lastInterceptor = this.interceptors[this.interceptors.lastIndexOf()];
-      newInterceptor.connected = this;
       lastInterceptor.connected = newInterceptor;
-    } else {
-      newInterceptor.connected = this;
     }
+
     this.interceptors.push(newInterceptor);
   }
 
@@ -76,8 +76,8 @@ class SendEndpoint extends connectorMixin(Endpoint) {
     return true;
   }
 
-  add(newInterceptor) {
-    super.add(newInterceptor);
+  addInterceptor(newInterceptor) {
+    super.addInterceptor(newInterceptor);
     this.receiver = this.interceptors[0];
   }
 
@@ -92,18 +92,9 @@ class SendEndpoint extends connectorMixin(Endpoint) {
     return this._connected.receive(request);
   }
 
-  // send(request) {
-  //   if (this.interceptors.length === 0) {
-  //     return this._connected.receive(request);
-  //   } else {
-  //     return this.interceptors[0].receive(request);
-  //   }
-  // }
-
   send(request) {
     return this.receiver.receive(request);
   }
-
 }
 
 

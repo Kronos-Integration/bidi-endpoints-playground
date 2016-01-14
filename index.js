@@ -61,5 +61,5 @@ step1.endpoints.send1.connected = step2.endpoints.receive;
 step1.endpoints.send2.connected = step2.endpoints.receive;
 
 
-step1.endpoints.send1.add(new endpoints.LoggingInterceptor('ic1'));
-step1.endpoints.send1.add(new endpoints.LoggingInterceptor('ic2'));
+step1.endpoints.send1.addInterceptor(new endpoints.LoggingInterceptor('ic1'));
+step1.endpoints.send1.addInterceptor(new endpoints.LoggingInterceptor('ic2'));
