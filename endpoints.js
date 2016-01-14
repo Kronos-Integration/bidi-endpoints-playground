@@ -28,8 +28,10 @@ class Endpoint {
   add(newInterceptor) {
     if (this.interceptors > 0) {
       const lastInterceptor = this.interceptors[this.interceptors.lastIndexOf()];
-      newInterceptor.connected = lastInterceptor.connected;
-      lastInterceptor.connected = this;
+      newInterceptor.connected = this;
+      lastInterceptor.connected = newInterceptor;
+    } else {
+      newInterceptor.connected = this;
     }
     this.interceptors.push(newInterceptor);
   }
@@ -47,9 +49,10 @@ class Endpoint {
 }
 
 class ReceiveEndpoint extends Endpoint {
-  get forward() {
-    return this._receive;
+  forward(request) {
+    return this._receive(request);
   }
+
   get receive() {
     if (this.interceptors > 0) {
       return this.interceptors[0].forward;
@@ -73,15 +76,15 @@ class SendEndpoint extends connectorMixin(Endpoint) {
     return true;
   }
 
-  get forward() {
-    return this.connected;
+  forward(request) {
+    return this.connected.receive(request);
   }
 
   send(request) {
     if (this.interceptors > 0) {
-      return this.interceptors[0].forward;
+      return this.interceptors[0].forward(request);
     } else {
-      return this.connected.forward(request);
+      return this.connected.receive(request);
     }
   }
 }
