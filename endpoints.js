@@ -88,25 +88,26 @@ class SendEndpoint extends connectorMixin(Endpoint) {
   //   this._connected = e;
   // }
 
-  forward(request) {
+  receive(request) {
     return this._connected.receive(request);
   }
+
   send(request) {
     if (this.interceptors.length === 0) {
       return this._connected.receive(request);
     } else {
-      return this.interceptors[0].forward(request);
+      return this.interceptors[0].receive(request);
     }
-
   }
+
 }
 
 
 
 class LoggingInterceptor extends connectorMixin(Endpoint) {
-  forward(request) {
+  receive(request) {
     const start = new Date();
-    const response = this.connected.forward(request);
+    const response = this.connected.receive(request);
     return response.then(f => {
       const now = new Date();
       console.log(`${this.name}: took ${now - start}ms for ${request.url}`);
