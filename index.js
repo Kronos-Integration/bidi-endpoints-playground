@@ -15,14 +15,14 @@ const step1 = {
 
   initialize() {
     app.use(route.get('/a', ctx =>
-      this.endpoints.send1.forward(ctx.request).then((f, r) => {
+      this.endpoints.send1.send(ctx.request).then((f, r) => {
         console.log(`a body: ${f}`);
         ctx.body = f;
       })
     ));
 
     app.use(route.get('/b', ctx =>
-      this.endpoints.send2.forward(ctx.request).then((f, r) => {
+      this.endpoints.send2.send(ctx.request).then((f, r) => {
         console.log(`b body: ${f}`);
         ctx.body = f;
       })
