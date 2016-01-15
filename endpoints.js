@@ -148,10 +148,6 @@ class SendEndpoint extends connectorMixin(Endpoint) {
   send(request) {
     return this.connected.receive(request);
   }
-
-  addInterceptor(interceptor) {
-    this.internal.inject(interceptor);
-  }
 }
 
 
