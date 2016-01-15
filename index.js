@@ -15,14 +15,14 @@ const step1 = {
 
   initialize() {
     app.use(route.get('/a', ctx =>
-      this.endpoints.send1.internal.forward(ctx.request).then((f, r) => {
+      this.endpoints.send1.send(ctx.request).then((f, r) => {
         console.log(`a body: ${f}`);
         ctx.body = f;
       })
     ));
 
     app.use(route.get('/b', ctx =>
-      this.endpoints.send2.internal.forward(ctx.request).then((f, r) => {
+      this.endpoints.send2.send(ctx.request).then((f, r) => {
         console.log(`b body: ${f}`);
         ctx.body = f;
       })
@@ -40,7 +40,7 @@ const step2 = {
   initialize() {
     let sequence = 0;
 
-    this.endpoints.receive.forward = request => {
+    this.endpoints.receive.receive = request => {
       sequence += 1;
 
       return new Promise((f, r) => {
@@ -61,5 +61,12 @@ step1.endpoints.send1.connected = step2.endpoints.receive;
 step1.endpoints.send2.connected = step2.endpoints.receive;
 
 
-step1.endpoints.send1.addInterceptor(new endpoints.LoggingInterceptor('ic1'));
-step1.endpoints.send1.addInterceptor(new endpoints.LoggingInterceptor('ic2'));
+step1.endpoints.send1.interceptors = [new endpoints.LoggingInterceptor('ics1'),
+  new endpoints.LoggingInterceptor('ics2'),
+  new endpoints.LoggingInterceptor('ics3'),
+  new endpoints.LoggingInterceptor('ics4')
+];
+
+console.log(`Interceptors: ${step1.endpoints.send1.interceptors}`);
+
+//step2.endpoints.receive.interceptors = [new endpoints.LoggingInterceptor('icr1')];
