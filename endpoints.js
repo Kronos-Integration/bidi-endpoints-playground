@@ -35,7 +35,7 @@ class Endpoint {
   }
 
   get hasInterceptors() {
-    return this._firstInterceptor !== undefined && this._firstInterceptor != this;
+    return this._firstInterceptor !== undefined;
   }
 
   get firstInterceptor() {
@@ -46,7 +46,6 @@ class Endpoint {
     let i = this._firstInterceptor;
     if (i === undefined) return undefined;
     do {
-      if (i === this) undefined;
       if (!i.isConnected) return i;
     }
     while (i = i.connected);
