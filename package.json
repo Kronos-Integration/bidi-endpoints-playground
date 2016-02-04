@@ -5,7 +5,7 @@
   "main": "index.js",
   "keywords": [],
   "scripts": {
-    "cover": "node ./node_modules/istanbul/lib/cli.js cover --hook-run-in-context ./node_modules/mocha/bin/_mocha -- --R spec --U exports tests",
+    "cover": "node ./node_modules/istanbul/lib/cli.js cover --hook-run-in-context ./node_modules/mocha/bin/_mocha -- --R spec --U exports tests/*_test.js",
     "doc": "jsdoc lib/*.js",
     "test": "mocha tests/*_test.js",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
@@ -24,10 +24,11 @@
     "scope-reporter": "2.3.0"
   },
   "devDependencies": {
-    "chai": "3.4.1",
-    "istanbul": "^0.4.1",
-    "mocha": "^2.3.4",
-    "semantic-release": "6.0.3"
+    "chai": "3.5.0",
+    "istanbul": "0.4.2",
+    "mocha": "2.4.5",
+    "semantic-release": "6.2.0",
+    "jsdoc": "3.4.0"
   },
   "contributors": [
     {
@@ -41,6 +42,6 @@
   ],
   "license": "BSD-2-Clause",
   "engines": {
-    "node": ">=4.2.1"
+    "node": ">=5"
   }
 }
