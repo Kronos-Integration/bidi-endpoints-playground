@@ -1,6 +1,8 @@
 coverage
 node_modules
 build
+tests
+doc
 *.log
 *.tmp
 .DS_Store
@@ -10,3 +12,6 @@ build
 .npmrc
 .travis.yml
 .npmignore
+.vscode
+.markdown-doctest-setup.js
+SUMMARY.md
