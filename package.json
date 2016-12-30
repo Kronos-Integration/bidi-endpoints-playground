@@ -1,7 +1,7 @@
 {
   "name": "bidi-endpoints-playground",
   "version": "0.0.0-semantic-release",
-  "description": "",
+  "description": "playground for bi-directional endpoints",
   "main": "index.js",
   "keywords": [],
   "scripts": {
