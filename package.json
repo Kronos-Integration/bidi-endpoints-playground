@@ -21,7 +21,7 @@
   "dependencies": {
     "koa": "^2.0.0-alpha.3",
     "koa-route": "^3.0.0",
-    "scope-reporter": "3.1.21"
+    "scope-reporter": "3.1.22"
   },
   "devDependencies": {
     "chai": "3.5.0",
