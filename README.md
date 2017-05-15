@@ -5,6 +5,8 @@ example to show how bi directional endpoints could work
 install
 =======
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Kronos-Integration/bidi-endpoints-playground.svg)](https://greenkeeper.io/)
+
 With [npm](http://npmjs.org) do:
 
 ```
