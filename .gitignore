@@ -9,4 +9,3 @@ out
 .nyc_output
 .test
 .tmp
-package-lock.json
