@@ -27,7 +27,7 @@
     "chai": "3.5.0",
     "istanbul": "0.4.5",
     "jsdoc": "3.4.3",
-    "mocha": "3.3.0",
+    "mocha": "10.2.0",
     "semantic-release": "^19.0.3"
   },
   "contributors": [
