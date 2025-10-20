@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/Kronos-Integration/bidi-endpoints-playground#readme",
   "dependencies": {
-    "koa": "^3.0.2",
+    "koa": "^3.0.3",
     "koa-route": "^3.2.0",
     "scope-reporter": "3.1.24"
   },
@@ -28,7 +28,7 @@
     "istanbul": "0.4.5",
     "jsdoc": "3.6.11",
     "mocha": "10.8.2",
-    "semantic-release": "^25.0.0"
+    "semantic-release": "^25.0.1"
   },
   "contributors": [
     {
